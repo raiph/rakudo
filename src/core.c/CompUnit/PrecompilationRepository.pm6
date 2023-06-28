@@ -34,6 +34,7 @@ class CompUnit::PrecompilationRepository::Default
     my $loaded        := nqp::hash;
     my $resolved      := nqp::hash;
     my $loaded-lock   := Lock.new;
+    my $resolved-lock := Lock.new;
     my $first-repo-id;
 
     my constant $compiler-id =
@@ -174,7 +175,7 @@ Need to re-check dependencies.")
 
             if $resolve {
                 my str $serialized-id = $dependency.serialize;
-                $loaded-lock.protect: {
+                $resolved-lock.protect: {
                     nqp::ifnull(
                       nqp::atkey($resolved,$serialized-id),
                       nqp::bindkey($resolved,$serialized-id, do {

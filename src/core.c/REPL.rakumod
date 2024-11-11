@@ -332,7 +332,7 @@ do {
 
         method init(Mu \compiler, $multi-line-enabled --> Nil) {
             if not $*IN.t {
-                die X::REPL::InvalidEnvironment.new: reason => "Unable to initialize REPL outside of a TTY";
+                X::REPL::InvalidEnvironment.new(reason => "Unable to initialize REPL outside of a TTY").throw;
             }
 
             $!compiler := compiler;

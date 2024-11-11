@@ -1,3 +1,19 @@
+my class X::REPL::InvalidEnvironment is Exception {
+    has $.reason is required;
+    has $.prefix = $*ENV<TERM> ?? "Invalid REPL environment '{$*ENV<TERM>}'" !! "Invalid REPL environment";
+    has $.solution = Rakudo::Internals.IS-WIN ?? "\nTry running again under 'winpty', ie '{create-call-string}'" !! "";
+
+    sub create-call-string() {
+        my $call = "winpty $*EXECUTABLE";
+        $call ~= " $*PROGRAM" if $*PROGRAM;
+        $call ~= " {@*ARGS.join(' ')}" if @*ARGS;
+        $call
+    }
+    method message() {
+        "$!prefix: $!reason$!solution"
+    }
+}
+
 class REPL { ... }
 
 do {
@@ -315,6 +331,10 @@ do {
         }
 
         method init(Mu \compiler, $multi-line-enabled --> Nil) {
+            if not $*IN.t {
+                die X::REPL::InvalidEnvironment.new: reason => "Unable to initialize REPL outside of a TTY";
+            }
+
             $!compiler := compiler;
             $!multi-line-enabled = $multi-line-enabled;
             PROCESS::<$SCHEDULER>.uncaught_handler =  -> $exception {

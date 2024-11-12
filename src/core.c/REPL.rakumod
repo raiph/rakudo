@@ -331,7 +331,7 @@ do {
         }
 
         method init(Mu \compiler, $multi-line-enabled --> Nil) {
-            if not compiler.is-interactive || $*IN.t {
+            if compiler.repl-mode eq 'tty' && not $*IN.t {
                 X::REPL::InvalidEnvironment.new(reason => "Unable to initialize REPL outside of a TTY").throw;
             }
 

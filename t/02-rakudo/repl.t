@@ -22,7 +22,7 @@ my $*REPL-SCRUBBER = -> $_ is copy {
     (temp %*ENV)<RAKUDO_ERROR_COLOR  RAKUDO_LINE_EDITOR>:delete;
     subtest 'sanity check; load without tweaking line editor' => {
         plan 3;
-        my $p := run $*EXECUTABLE, '--repl-mode=interactive', :in, :out, :err;
+        my $p := run $*EXECUTABLE, '--repl-mode=process', :in, :out, :err;
         $p.in.say: '133742.flip.say';
         $p.in.close;
         like $p.out.slurp(:close),     /247331/, 'result of code is on STDOUT';
@@ -237,7 +237,7 @@ is-run-repl ['Nil'], /Nil/, 'REPL outputs Nil as a Nil';
     # REPL must not start, but if it does start and wait for input, it'll
     # "hang", from our point of view, which the test function will detect
     doesn't-hang \(:w, $*EXECUTABLE,
-        '--repl-mode=interactive', '-M', 'NonExistentModuleRT128595'
+        '--repl-mode=process', '-M', 'NonExistentModuleRT128595'
     ), :out(/^$/), :err(/'Could not find NonExistentModuleRT128595'/),
     'REPL with -M with non-existent module does not start';
 }
@@ -337,7 +337,7 @@ is-run-repl 'my $fh = $*EXECUTABLE.open(:r)',
 subtest 'check with additional CLI arguments' => {
     plan 3;
     my $p := run $*EXECUTABLE,
-      '--repl-mode=interactive', <foo bar baz>, :in, :out, :err;
+      '--repl-mode=process', <foo bar baz>, :in, :out, :err;
     $p.in.say: '@*ARGS';
     $p.in.close;
     ok $p.out.slurp(:close).contains('[foo bar baz]'),

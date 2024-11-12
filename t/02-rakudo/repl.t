@@ -2,7 +2,7 @@ use lib <t/packages/Test-Helpers>;
 use Test;
 use Test::Helpers;
 
-plan 48;
+plan 49;
 
 my $eof = $*DISTRO.is-win ?? "'^Z'" !! "'^D'";
 my $*REPL-SCRUBBER = -> $_ is copy {
@@ -344,6 +344,13 @@ subtest 'check with additional CLI arguments' => {
       'got the command line arguments';
     is $p.err.slurp(:close).chars, 0,        'no STDERR output';
     is $p.exitcode,                0,        'successful exit code';
+}
+
+subtest 'check that trying to run a REPL that expects a TTY fails without a TTY' => {
+    plan 2;
+    my $p := run $*EXECUTABLE, '--repl-mode=tty', :in, :out, :err;
+    ok $p.err.slurp(:close).contains('Invalid REPL environment'), "Cannot start a REPL that wants a TTY without a TTY";
+    is $p.exitcode, 1, 'Exit code (1) reflects expected failure';
 }
 
 # vim: expandtab shiftwidth=4
